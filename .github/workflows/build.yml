@@ -1,0 +1,22 @@
+name: Build EXE
+on: [push]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare & Build
+        run: |
+          if (Select-String -Path CMakeLists.txt -Pattern "src/" -Quiet) {
+            New-Item -ItemType Directory -Force -Path src
+            Move-Item -Path *.cpp, *.hpp -Destination src/ -ErrorAction SilentlyContinue
+          }
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --config Release
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: FNBoost2-EXE
+          path: build/**/*.exe
